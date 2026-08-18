@@ -1,0 +1,26 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "piperbrain": {
+      "type": "remote",
+      "url": "http://localhost:9751/mcp/sse?project=53774869-40fe-4d46-a861-de33efe45f51",
+      "enabled": true
+    }
+  },
+  "permission": {
+    "piperbrain_*": "allow",
+    "grep": "deny",
+    "glob": "deny",
+    "list": "deny",
+    "bash": {
+      "*": "allow",
+      "rg *": "deny",
+      "grep *": "deny",
+      "git grep*": "deny",
+      "find *": "deny",
+      "fd *": "deny",
+      "ag *": "deny",
+      "ack *": "deny"
+    }
+  }
+}

@@ -8,7 +8,7 @@
         'difficulty' => ucfirst($recipe->dificuldade),
         'rating' => number_format((float) $recipe->nota_media, 1, ',', '.'),
         'reviews' => $recipe->total_avaliacoes,
-        'image' => $recipe->foto_principal_path ?: 'https://placehold.co/900x600/f3eadf/bd5b32?text=Receita',
+        'image' => $recipe->foto_url ?: 'https://placehold.co/900x600/f3eadf/bd5b32?text=Receita',
     ];
 @endphp
 

@@ -90,6 +90,6 @@ final class RecipeCatalog
     /** @return array<string, mixed> */
     private static function toCard(Receita $recipe): array
     {
-        return ['title' => $recipe->titulo, 'slug' => $recipe->slug, 'category' => $recipe->categoria?->nome ?? 'Receitas', 'time' => $recipe->tempoTotalMin().' min', 'difficulty' => ucfirst($recipe->dificuldade), 'rating' => number_format((float) $recipe->nota_media, 1, ',', '.'), 'reviews' => $recipe->total_avaliacoes, 'image' => $recipe->foto_principal_path ?: 'https://placehold.co/900x600/f3eadf/bd5b32?text=Receita'];
+        return ['title' => $recipe->titulo, 'slug' => $recipe->slug, 'category' => $recipe->categoria?->nome ?? 'Receitas', 'time' => $recipe->tempoTotalMin().' min', 'difficulty' => ucfirst($recipe->dificuldade), 'rating' => number_format((float) $recipe->nota_media, 1, ',', '.'), 'reviews' => $recipe->total_avaliacoes, 'image' => $recipe->foto_url ?: 'https://placehold.co/900x600/f3eadf/bd5b32?text=Receita'];
     }
 }

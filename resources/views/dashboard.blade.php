@@ -1,17 +1,4 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
-                </div>
-            </div>
-        </div>
-    </div>
-</x-app-layout>
+<x-layouts.public :title="'Minha cozinha — Cantinho das Receitas'">
+    <section class="account-header"><div class="container"><span class="eyebrow">Que bom ter você aqui</span><h1>Olá, {{ auth()->user()->name }}!</h1><p>Continue cozinhando, salvando e compartilhando momentos especiais.</p></div></section>
+    <section class="account-section container dashboard-actions"><div class="dashboard-welcome"><div><span class="eyebrow">Sua cozinha</span><h2>O que você quer fazer hoje?</h2><p>Tenha suas receitas organizadas e compartilhe seus sabores favoritos.</p></div><span class="dashboard-mark">✦</span></div><div class="dashboard-card-grid"><a class="dashboard-card" href="{{ route('minhas-receitas') }}"><span>▤</span><strong>Minhas receitas</strong><small>Veja e organize suas criações</small><b>→</b></a><a class="dashboard-card" href="{{ route('receitas.criar') }}"><span>＋</span><strong>Criar receita</strong><small>Compartilhe uma receita especial</small><b>→</b></a><a class="dashboard-card" href="{{ route('perfil') }}"><span>♙</span><strong>Meu perfil</strong><small>Atualize seus dados pessoais</small><b>→</b></a><a class="dashboard-card" href="{{ route('receitas.listar') }}"><span>⌕</span><strong>Explorar receitas</strong><small>Descubra novos sabores</small><b>→</b></a></div></section>
+</x-layouts.public>

@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "project": {
+    "uuid": "53774869-40fe-4d46-a861-de33efe45f51",
+    "name": "Cantinho das Receitas",
+    "path": "/var/www/html/Cantinho das Receitas/cantinho-das-receitas"
+  },
+  "project_config_url": "http://localhost:9751/p/53774869-40fe-4d46-a861-de33efe45f51-cantinho-das-receitas/config",
+  "mcp": {
+    "server": "http://localhost:9751/mcp/sse?project=53774869-40fe-4d46-a861-de33efe45f51",
+    "transport": "sse",
+    "auto_connect": true
+  },
+  "createdAt": "2026-08-18T13:12:25-03:00",
+  "updatedAt": "2026-08-18T13:12:25-03:00"
+}

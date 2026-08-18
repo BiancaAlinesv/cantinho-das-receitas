@@ -19,9 +19,14 @@ class PortionCalculator extends Component
     public function aumentar(): void { $this->porcoesAtuais = min(100, $this->porcoesAtuais + 1); }
     public function diminuir(): void { $this->porcoesAtuais = max(1, $this->porcoesAtuais - 1); }
 
+    public function getFatorProperty(): float
+    {
+        return $this->porcoesAtuais / max(1, $this->receita->porcoes);
+    }
+
     public function ingredientesRecalculados()
     {
-        $fator = $this->porcoesAtuais / max(1, $this->receita->porcoes);
+        $fator = $this->fator;
 
         return $this->receita->ingredientes->map(fn ($item) => [
             'nome' => $item->ingrediente->nome,

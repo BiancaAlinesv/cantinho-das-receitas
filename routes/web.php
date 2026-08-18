@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Models\Receita;
 use App\Http\Controllers\SitemapController;
+use App\Livewire\Receitas\CreateRecipe;
+use App\Livewire\Receitas\EditRecipe;
+use App\Livewire\Receitas\MyRecipes;
 
 Route::view('/', 'home')->name('inicio');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
@@ -12,9 +15,9 @@ Route::get('/receitas', function (\Illuminate\Http\Request $request) {
 })->name('receitas.listar');
 
 Route::middleware('auth')->group(function (): void {
-    Route::livewire('/receitas/criar', 'receitas.criar')->name('receitas.criar');
-    Route::livewire('/receitas/{receita:slug}/editar', 'receitas.editar')->name('receitas.editar');
-    Route::livewire('/minhas-receitas', 'minhas-receitas')->name('minhas-receitas');
+    Route::livewire('/receitas/criar', CreateRecipe::class)->name('receitas.criar');
+    Route::livewire('/receitas/{receita:slug}/editar', EditRecipe::class)->name('receitas.editar');
+    Route::livewire('/minhas-receitas', MyRecipes::class)->name('minhas-receitas');
     Route::livewire('/perfil', 'perfil')->name('perfil');
 });
 

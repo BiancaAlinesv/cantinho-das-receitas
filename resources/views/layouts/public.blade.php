@@ -14,6 +14,7 @@
     <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
     <title>{{ $title ?? trim($__env->yieldContent('title', 'Cantinho das Receitas')) }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
     {!! $head ?? trim($__env->yieldContent('head')) !!}
 </head>
 <body class="site-shell">
@@ -48,5 +49,6 @@
             <p class="footer-copy">© {{ date('Y') }} Cantinho das Receitas</p>
         </div>
     </footer>
+    @livewireScripts
 </body>
 </html>

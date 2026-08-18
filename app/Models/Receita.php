@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Receita extends Model
@@ -50,6 +51,15 @@ class Receita extends Model
     public function avaliacoes(): HasMany { return $this->hasMany(Avaliacao::class); }
     public function comentarios(): HasMany { return $this->hasMany(Comentario::class); }
     public function tempoTotalMin(): int { return $this->tempo_preparo_min + (int) $this->tempo_cozimento_min; }
+
+    public function getFotoUrlAttribute(): ?string
+    {
+        if (! $this->foto_principal_path) return null;
+
+        return Str::startsWith($this->foto_principal_path, ['http://', 'https://'])
+            ? $this->foto_principal_path
+            : Storage::disk('public')->url($this->foto_principal_path);
+    }
 
     public function scopePublicadas(Builder $query): Builder
     {

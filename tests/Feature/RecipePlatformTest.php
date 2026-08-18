@@ -18,6 +18,10 @@ use App\Livewire\Interacoes\RatingStars;
 use App\Livewire\Interacoes\CommentsList;
 use App\Livewire\Interacoes\ShareRecipe;
 use App\Livewire\Receitas\PortionCalculator;
+use App\Livewire\Receitas\CreateRecipe;
+use App\Livewire\Receitas\EditRecipe;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class RecipePlatformTest extends TestCase
@@ -70,6 +74,50 @@ class RecipePlatformTest extends TestCase
     public function test_authenticated_recipe_list_is_available(): void
     {
         $this->actingAs(User::factory()->create())->get('/minhas-receitas')->assertOk();
+    }
+
+    public function test_authenticated_drafts_tab_is_available(): void
+    {
+        $this->actingAs(User::factory()->create())->get('/minhas-receitas?aba=rascunhos')->assertOk()->assertSee('Rascunhos');
+    }
+
+    public function test_authenticated_recipe_creation_screen_is_available(): void
+    {
+        $this->actingAs(User::factory()->create())->get('/receitas/criar')->assertOk()->assertSee('Salvar rascunho');
+    }
+
+    public function test_user_can_add_ingredient_while_editing_recipe(): void
+    {
+        $user = User::factory()->create();
+        $category = Categoria::create(['nome' => 'Massas', 'slug' => 'massas']);
+        $recipe = Receita::create(['user_id' => $user->id, 'categoria_id' => $category->id, 'titulo' => 'Pão de ló', 'descricao' => 'Uma receita de teste suficientemente descritiva.', 'tempo_preparo_min' => 10, 'tempo_cozimento_min' => 20, 'porcoes' => 4, 'custo' => 'baixo', 'dificuldade' => 'facil', 'status' => 'publicada', 'published_at' => now()]);
+
+        $this->actingAs($user);
+        Livewire::test(EditRecipe::class, ['receita' => $recipe])
+            ->assertCount('ingredientes', 1)
+            ->call('adicionarIngrediente')
+            ->assertCount('ingredientes', 2);
+    }
+
+    public function test_user_can_create_recipe_with_a_photo(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+        $category = Categoria::create(['nome' => 'Doces', 'slug' => 'doces']);
+
+        $this->actingAs($user);
+        Livewire::test(CreateRecipe::class)
+            ->set('titulo', 'Bolo com foto')
+            ->set('descricao', 'Uma receita de bolo suficientemente descritiva para o teste.')
+            ->set('categoria_id', $category->id)
+            ->set('ingredientes', [['nome' => 'Farinha', 'quantidade' => 200, 'unidade' => 'g', 'observacao' => 'peneirada']])
+            ->set('modo_preparo', 'Misture os ingredientes e asse até dourar.')
+            ->set('foto', UploadedFile::fake()->image('bolo.jpg'))
+            ->call('salvar', 'rascunho');
+
+        $receita = Receita::where('titulo', 'Bolo com foto')->firstOrFail();
+        $this->assertStringStartsWith('receitas/', $receita->foto_principal_path);
+        Storage::disk('public')->assertExists($receita->foto_principal_path);
     }
 
     public function test_admin_categories_screen_is_available(): void
