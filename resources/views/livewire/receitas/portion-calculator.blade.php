@@ -1,0 +1,4 @@
+<section class="recipe-ingredients">
+    <div class="detail-section-heading"><div><span class="eyebrow">O que você vai precisar</span><h2>Ingredientes</h2></div><div class="servings-control"><button wire:click="diminuir" type="button">−</button><strong>{{ $porcoesAtuais }}</strong><span>porções</span><button wire:click="aumentar" type="button">+</button></div></div>
+    <ul class="ingredient-list">@foreach($this->ingredientesRecalculados() as $ingredient)<li><span class="ingredient-dot"></span><span>{{ $ingredient['quantidade'] !== null ? rtrim(rtrim(number_format($ingredient['quantidade'], 2, ',', '.'), '0'), ',').' '.($ingredient['unidade'] !== 'unidade' ? str_replace('_', ' ', $ingredient['unidade']) : '') : 'A gosto' }} <strong>{{ $ingredient['nome'] }}</strong>@if($ingredient['observacao']) <small>({{ $ingredient['observacao'] }})</small>@endif</span></li>@endforeach</ul>
+</section>

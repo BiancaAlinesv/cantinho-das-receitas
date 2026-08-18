@@ -1,2 +1,9 @@
 User-agent: *
-Disallow:
+Disallow: /admin
+Disallow: /minhas-receitas
+Disallow: /perfil
+Disallow: /receitas/criar
+Disallow: /receitas/*/editar
+Allow: /
+
+Sitemap: /sitemap.xml

@@ -1,0 +1,1 @@
+@include('layouts.public', ['slot' => $slot ?? '', 'head' => $head ?? '', 'title' => $title ?? null, 'description' => $description ?? null, 'image' => $image ?? null, 'ogType' => $ogType ?? null, 'canonical' => $canonical ?? null])
