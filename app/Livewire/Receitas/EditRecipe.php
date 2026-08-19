@@ -67,8 +67,10 @@ class EditRecipe extends Component
         $this->ingredientes = array_values($this->ingredientes);
     }
 
-    public function salvar(): void
+    public function salvar(?string $status = null): void
     {
+        $status ??= $this->receita->status;
+        abort_unless(in_array($status, ['rascunho', 'publicada'], true), 422);
         $dados = $this->validate([
             'titulo' => ['required', 'string', 'max:255'],
             'descricao' => ['required', 'string', 'min:20'],
@@ -90,6 +92,8 @@ class EditRecipe extends Component
         $ingredientes = $dados['ingredientes']; $modoPreparo = $dados['modo_preparo'];
         $fonte = ['tipo' => $dados['tipo_fonte'], 'nome_fonte' => $dados['nome_fonte'] ?: null, 'url' => $dados['url_fonte'] ?: null, 'observacoes' => $dados['observacoes_pessoais'] ?: null];
         unset($dados['ingredientes'], $dados['modo_preparo'], $dados['tipo_fonte'], $dados['nome_fonte'], $dados['url_fonte'], $dados['observacoes_pessoais']);
+        $dados['status'] = $status;
+        $dados['published_at'] = $status === 'publicada' ? ($this->receita->published_at ?? now()) : null;
         if ($this->foto) {
             if ($this->receita->foto_principal_path && ! str_starts_with($this->receita->foto_principal_path, 'http')) {
                 Storage::disk('public')->delete($this->receita->foto_principal_path);

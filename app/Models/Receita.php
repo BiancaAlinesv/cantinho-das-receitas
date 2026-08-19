@@ -52,6 +52,7 @@ class Receita extends Model
     public function avaliacoes(): HasMany { return $this->hasMany(Avaliacao::class); }
     public function comentarios(): HasMany { return $this->hasMany(Comentario::class); }
     public function fonte(): HasOne { return $this->hasOne(ReceitaFonte::class); }
+    public function estadosUsuarios(): HasMany { return $this->hasMany(ReceitaUserStatus::class); }
     public function tempoTotalMin(): int { return $this->tempo_preparo_min + (int) $this->tempo_cozimento_min; }
 
     public function getFotoUrlAttribute(): ?string

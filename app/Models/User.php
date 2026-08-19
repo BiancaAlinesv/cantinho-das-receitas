@@ -36,4 +36,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Favorito::class);
     }
+
+    public function estadosReceitas(): HasMany
+    {
+        return $this->hasMany(ReceitaUserStatus::class);
+    }
 }

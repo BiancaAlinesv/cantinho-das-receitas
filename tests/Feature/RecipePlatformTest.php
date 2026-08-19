@@ -299,6 +299,38 @@ class RecipePlatformTest extends TestCase
         Storage::disk('public')->assertExists($receita->foto_principal_path);
     }
 
+    public function test_recipe_creation_rejects_non_image_upload(): void
+    {
+        $user = User::factory()->create();
+        $category = Categoria::create(['nome' => 'Doces', 'slug' => 'doces']);
+
+        $this->actingAs($user);
+        Livewire::test(CreateRecipe::class)
+            ->set('titulo', 'Receita com upload inválido')
+            ->set('descricao', 'Uma receita suficientemente descritiva para testar upload inválido.')
+            ->set('categoria_id', $category->id)
+            ->set('ingredientes', [['nome' => 'Farinha', 'quantidade' => 200, 'unidade' => 'g', 'observacao' => '']])
+            ->set('modo_preparo', 'Misture os ingredientes e asse até dourar.')
+            ->set('foto', UploadedFile::fake()->image('arquivo.png')->size(6000))
+            ->call('salvar')
+            ->assertHasErrors(['foto']);
+    }
+
+    public function test_owner_can_publish_a_saved_draft(): void
+    {
+        $user = User::factory()->create();
+        $category = Categoria::create(['nome' => 'Doces', 'slug' => 'doces']);
+        $recipe = Receita::create(['user_id' => $user->id, 'categoria_id' => $category->id, 'titulo' => 'Rascunho para publicar', 'descricao' => 'Uma receita suficientemente descritiva para publicar.', 'tempo_preparo_min' => 10, 'tempo_cozimento_min' => 10, 'porcoes' => 2, 'custo' => 'baixo', 'dificuldade' => 'facil', 'status' => 'rascunho']);
+
+        $this->actingAs($user);
+        Livewire::test(EditRecipe::class, ['receita' => $recipe])
+            ->set('ingredientes', [['chave' => 'publicar', 'nome' => 'Farinha', 'quantidade' => 100, 'unidade' => 'g', 'observacao' => '']])
+            ->set('modo_preparo', 'Misture tudo e asse até dourar.')
+            ->call('salvar', 'publicada');
+
+        $this->assertDatabaseHas('receitas', ['id' => $recipe->id, 'status' => 'publicada']);
+    }
+
     public function test_admin_categories_screen_is_available(): void
     {
         $this->actingAs(User::factory()->create(['is_admin' => true]))->get('/admin/categorias')->assertOk();
