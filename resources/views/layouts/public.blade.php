@@ -12,7 +12,7 @@
     <meta property="og:description" content="{{ $description ?? trim($__env->yieldContent('description', 'Receitas afetivas, simples e deliciosas para todos os dias.')) }}">
     <meta property="og:type" content="{{ $ogType ?? 'website' }}">
     <meta property="og:locale" content="pt_BR">
-    @if(!empty($image))<meta property="og:image" content="{{ $image }}">@endif
+    @if(!empty($image))<meta property="og:image" content="{{ $image }}"><meta property="og:image:alt" content="{{ $title ?? 'Cantinho das Receitas' }}">@endif
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $title ?? trim($__env->yieldContent('title', 'Cantinho das Receitas')) }}">
     <meta name="twitter:description" content="{{ $description ?? trim($__env->yieldContent('description', 'Receitas afetivas, simples e deliciosas para todos os dias.')) }}">

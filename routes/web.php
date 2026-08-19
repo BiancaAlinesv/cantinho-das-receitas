@@ -51,7 +51,7 @@ Route::get('dashboard', function () {
             'rascunhos' => $usuario->receitas()->where('status', 'rascunho')->count(),
             'favoritas' => $usuario->favoritos()->count(),
         ],
-        'recentes' => $usuario->receitas()->with('categoria')->latest()->limit(3)->get(),
+        'recentes' => $usuario->receitas()->with(['categoria', 'fonte'])->latest()->limit(3)->get(),
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 

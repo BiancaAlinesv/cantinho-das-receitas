@@ -14,7 +14,7 @@
 
 <article class="recipe-card">
     <a href="{{ isset($card['slug']) ? route('receitas.mostrar', $card['slug']) : route('receitas.listar', ['busca' => $card['title']]) }}" class="recipe-image-wrap">
-        <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" loading="lazy" class="recipe-image">
+        <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" loading="lazy" decoding="async" width="900" height="600" class="recipe-image">
         <span class="recipe-category">{{ $card['category'] }}</span>
     </a>
     @if($recipe instanceof \App\Models\Receita)

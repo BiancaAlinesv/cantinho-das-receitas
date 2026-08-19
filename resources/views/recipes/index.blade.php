@@ -1,6 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Receitas — Cantinho das Receitas')
+@section('description', 'Encontre receitas caseiras, organize suas descobertas e escolha o que cozinhar hoje no Cantinho das Receitas.')
 
 @section('content')
 <section class="listing-header"><div class="container"><span class="eyebrow">Nosso caderno</span><h1>Todas as receitas</h1><p>Escolha uma receita e deixe a cozinha cuidar do resto.</p><form action="{{ route('receitas.listar') }}" method="GET" class="search-form listing-search"><span aria-hidden="true">⌕</span><input name="busca" value="{{ $term }}" type="search" placeholder="Buscar por nome, categoria ou ingrediente..." aria-label="Buscar receitas"><button type="submit">Buscar</button></form></div></section>

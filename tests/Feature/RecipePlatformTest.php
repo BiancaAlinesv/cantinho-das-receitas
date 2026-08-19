@@ -13,6 +13,7 @@ use App\Models\ReceitaFonte;
 use App\Models\Ingrediente;
 use App\Models\ReceitaIngrediente;
 use App\Models\User;
+use App\Support\RecipeCatalog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use App\Livewire\Interacoes\FavoriteButton;
@@ -35,7 +36,7 @@ class RecipePlatformTest extends TestCase
     public function test_public_recipe_pages_and_sitemap_are_available(): void
     {
         $this->get('/')->assertOk()->assertSee('Cantinho das Receitas')->assertSee('og:locale');
-        $this->get('/receitas')->assertOk()->assertSee('Todas as receitas');
+        $this->get('/receitas')->assertOk()->assertSee('Todas as receitas')->assertSee('Encontre receitas caseiras');
         $this->get('/sitemap.xml')->assertOk()->assertHeader('Content-Type', 'application/xml');
     }
 
@@ -125,6 +126,24 @@ class RecipePlatformTest extends TestCase
             ->assertDontSee('Torta não filtrada');
     }
 
+    public function test_home_category_counts_include_only_published_recipes(): void
+    {
+        $user = User::factory()->create();
+        $category = Categoria::create(['nome' => 'Cadernos', 'slug' => 'cadernos']);
+        $dados = [
+            'user_id' => $user->id, 'categoria_id' => $category->id, 'descricao' => 'Uma receita suficientemente descritiva para testar a categoria.',
+            'tempo_preparo_min' => 10, 'tempo_cozimento_min' => 10, 'porcoes' => 2, 'custo' => 'baixo', 'dificuldade' => 'facil',
+        ];
+
+        Receita::create($dados + ['titulo' => 'Receita publicada', 'status' => 'publicada', 'published_at' => now()]);
+        Receita::create($dados + ['titulo' => 'Receita em rascunho', 'status' => 'rascunho']);
+
+        RecipeCatalog::clearCache();
+        $categoria = collect(RecipeCatalog::categories())->firstWhere('name', 'Cadernos');
+
+        $this->assertSame(1, $categoria['count']);
+    }
+
     public function test_recipe_catalog_searches_by_related_ingredient(): void
     {
         $user = User::factory()->create();
@@ -173,6 +192,17 @@ class RecipePlatformTest extends TestCase
     public function test_authenticated_drafts_tab_is_available(): void
     {
         $this->actingAs(User::factory()->create())->get('/minhas-receitas?aba=rascunhos')->assertOk()->assertSee('Rascunhos');
+    }
+
+    public function test_user_can_search_own_recipe_library_by_title(): void
+    {
+        $user = User::factory()->create();
+        $category = Categoria::create(['nome' => 'Doces', 'slug' => 'doces']);
+        Receita::create(['user_id' => $user->id, 'categoria_id' => $category->id, 'titulo' => 'Bolo da casa', 'descricao' => 'Uma receita suficientemente descritiva para a busca.', 'tempo_preparo_min' => 10, 'tempo_cozimento_min' => 10, 'porcoes' => 2, 'custo' => 'baixo', 'dificuldade' => 'facil', 'status' => 'publicada', 'published_at' => now()]);
+        Receita::create(['user_id' => $user->id, 'categoria_id' => $category->id, 'titulo' => 'Sopa da tarde', 'descricao' => 'Outra receita suficientemente descritiva para a busca.', 'tempo_preparo_min' => 10, 'tempo_cozimento_min' => 10, 'porcoes' => 2, 'custo' => 'baixo', 'dificuldade' => 'facil', 'status' => 'publicada', 'published_at' => now()]);
+
+        $this->actingAs($user);
+        Livewire::test(MyRecipes::class)->set('busca', 'bolo')->assertSee('Bolo da casa')->assertDontSee('Sopa da tarde');
     }
 
     public function test_authenticated_recipe_creation_screen_is_available(): void
@@ -329,6 +359,51 @@ class RecipePlatformTest extends TestCase
             ->call('salvar', 'publicada');
 
         $this->assertDatabaseHas('receitas', ['id' => $recipe->id, 'status' => 'publicada']);
+    }
+
+    public function test_editing_a_published_recipe_preserves_status_and_returns_to_my_recipes(): void
+    {
+        $user = User::factory()->create();
+        $category = Categoria::create(['nome' => 'Doces', 'slug' => 'doces']);
+        $recipe = Receita::create([
+            'user_id' => $user->id, 'categoria_id' => $category->id, 'titulo' => 'Receita publicada editada',
+            'descricao' => 'Uma receita publicada suficientemente descritiva para validar a edição.', 'tempo_preparo_min' => 10,
+            'tempo_cozimento_min' => 10, 'porcoes' => 2, 'custo' => 'baixo', 'dificuldade' => 'facil', 'status' => 'publicada', 'published_at' => now(),
+        ]);
+
+        $this->actingAs($user);
+        Livewire::test(EditRecipe::class, ['receita' => $recipe])
+            ->set('ingredientes', [['chave' => 'editar', 'nome' => 'Farinha', 'quantidade' => 100, 'unidade' => 'g', 'observacao' => '']])
+            ->set('modo_preparo', 'Misture tudo e asse até dourar com cuidado.')
+            ->call('salvar')
+            ->assertRedirect(route('minhas-receitas'));
+
+        $this->assertDatabaseHas('receitas', ['id' => $recipe->id, 'status' => 'publicada']);
+    }
+
+    public function test_owner_can_replace_recipe_photo_while_editing(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+        $category = Categoria::create(['nome' => 'Doces', 'slug' => 'doces']);
+        $oldPhoto = UploadedFile::fake()->image('antiga.jpg')->store('receitas', 'public');
+        $recipe = Receita::create([
+            'user_id' => $user->id, 'categoria_id' => $category->id, 'titulo' => 'Receita com foto editável',
+            'descricao' => 'Uma receita suficientemente descritiva para validar troca de imagem.', 'tempo_preparo_min' => 10,
+            'tempo_cozimento_min' => 10, 'porcoes' => 2, 'custo' => 'baixo', 'dificuldade' => 'facil', 'status' => 'rascunho', 'foto_principal_path' => $oldPhoto,
+        ]);
+
+        $this->actingAs($user);
+        Livewire::test(EditRecipe::class, ['receita' => $recipe])
+            ->set('ingredientes', [['chave' => 'foto', 'nome' => 'Farinha', 'quantidade' => 100, 'unidade' => 'g', 'observacao' => '']])
+            ->set('modo_preparo', 'Misture tudo e asse até dourar com cuidado.')
+            ->set('foto', UploadedFile::fake()->image('nova.jpg'))
+            ->call('salvar');
+
+        $recipe->refresh();
+        $this->assertNotSame($oldPhoto, $recipe->foto_principal_path);
+        Storage::disk('public')->assertMissing($oldPhoto);
+        Storage::disk('public')->assertExists($recipe->foto_principal_path);
     }
 
     public function test_admin_categories_screen_is_available(): void
