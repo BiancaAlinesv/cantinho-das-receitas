@@ -95,14 +95,14 @@ final class RecipeCatalog
     public static function categories(): array
     {
         if (self::databaseIsReady()) {
-            $categories = Cache::remember('catalog:home:categories', now()->addMinutes(10), fn (): array => Categoria::query()->withCount(['receitas as receitas_count' => fn ($query) => $query->publicadas()])->orderBy('nome')->get()->map(fn (Categoria $category): array => ['name' => $category->nome, 'icon' => $category->icone ?: '✦', 'count' => (int) $category->receitas_count])->all());
+            $categories = Cache::remember('catalog:home:categories', now()->addMinutes(10), fn (): array => Categoria::query()->withCount(['receitas as receitas_count' => fn ($query) => $query->publicadas()])->orderBy('nome')->get()->map(fn (Categoria $category): array => ['name' => $category->nome, 'icon' => $category->icone ?: '◌', 'count' => (int) $category->receitas_count])->all());
             if ($categories !== []) {
                 return $categories;
             }
         }
 
         return [
-            ['name' => 'Doces', 'icon' => '✦', 'count' => 0],
+            ['name' => 'Doces', 'icon' => '◌', 'count' => 0],
             ['name' => 'Almoço', 'icon' => '◒', 'count' => 0],
             ['name' => 'Lanches', 'icon' => '⌁', 'count' => 0],
             ['name' => 'Saudáveis', 'icon' => '❋', 'count' => 0],

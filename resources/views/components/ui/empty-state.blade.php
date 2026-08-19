@@ -1,4 +1,4 @@
-@props(['icon' => '✦', 'title', 'description'])
+@props(['icon' => '♡', 'title', 'description'])
 
 <div {{ $attributes->merge(['class' => 'empty-state']) }}>
     <span aria-hidden="true">{{ $icon }}</span>

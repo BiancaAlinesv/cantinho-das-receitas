@@ -1,7 +1,7 @@
 <section class="recipe-ingredients portion-calculator">
     <div class="portion-calculator-heading">
         <div><span class="eyebrow">Calculadora de porções</span><h2>Ajuste a quantidade da receita</h2><p>As medidas dos ingredientes mudam automaticamente.</p></div>
-        <span class="portion-calculator-badge">✦ Livewire</span>
+        <span class="portion-calculator-badge">Atualização instantânea</span>
     </div>
     <div class="portion-calculator-control">
         <div><span class="portion-label">Quantas porções?</span><small>Receita original: {{ $receita->porcoes }} porções</small></div>

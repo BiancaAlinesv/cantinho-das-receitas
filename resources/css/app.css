@@ -30,7 +30,7 @@
 .dashboard-welcome { display:flex; justify-content:space-between; align-items:center; padding:30px 34px; background:#f3eadf; border-radius:8px; }
 .dashboard-welcome h2 { font-size:29px; }
 .dashboard-welcome p { margin-top:8px; color:var(--muted); font-size:13px; }
-.dashboard-mark { color:var(--orange); font:80px/1 'Playfair Display',serif; }
+.dashboard-mark { color:var(--orange); font:0/1 'Playfair Display',serif; width:80px; height:80px; object-fit:contain; background:url('/imagens/logotrasparente.png') center/contain no-repeat; }
 .dashboard-card-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:15px; margin-top:18px; }
 .dashboard-card { display:flex; flex-direction:column; min-height:180px; padding:22px; border:1px solid var(--line); border-radius:8px; background:var(--paper); transition:.2s; }
 .dashboard-card:hover { border-color:#d79b7f; transform:translateY(-3px); box-shadow:0 10px 25px rgba(74,46,28,.06); }
@@ -183,7 +183,7 @@
 @media (max-width:640px) { .site-footer { margin-top:60px; padding:36px 0 28px; }.footer-inner { align-items:flex-start; gap:25px; }.footer-signature { align-items:flex-start; text-align:left; }.footer-signature a { font-size:14px; } }
 .about-section { padding-top:86px; }
 .about-card { display:grid; grid-template-columns:minmax(260px,.75fr) minmax(0,1.25fr); gap:70px; padding:58px clamp(28px,6vw,78px); border:1px solid #eadfd6; border-radius:10px; background:linear-gradient(135deg,#f3eadf,#fffaf5 72%); }
-.about-intro { position:relative; }.about-intro h2 { font-size:clamp(32px,4vw,48px); line-height:1.08; }.about-mark { position:absolute; left:-18px; bottom:-48px; color:rgba(189,91,50,.13); font:130px/1 'Playfair Display',serif; }
+.about-intro { position:relative; }.about-intro h2 { font-size:clamp(32px,4vw,48px); line-height:1.08; }.about-mark { position:absolute; left:-18px; bottom:-48px; width:92px; height:92px; font-size:0; background:url('/imagens/logotrasparente.png') center/contain no-repeat; opacity:.18; }
 .about-copy { color:var(--muted); font-size:14px; line-height:1.85; }.about-copy p + p { margin-top:16px; }.about-copy strong { color:var(--ink); font-weight:700; }.about-copy blockquote { margin:24px 0; padding:17px 22px; border-left:3px solid var(--orange); color:var(--ink); background:rgba(255,255,255,.56); font-family:'Playfair Display',serif; font-size:20px; font-style:italic; }.about-heart { white-space:nowrap; }
 @media (max-width:800px) { .about-section { padding-top:60px; }.about-card { grid-template-columns:1fr; gap:28px; padding:34px 26px; }.about-mark { right:0; left:auto; bottom:-45px; font-size:90px; } }
 @media (max-width:560px) { .about-card { padding:28px 20px; }.about-copy { font-size:13px; line-height:1.75; }.about-copy blockquote { margin:20px 0; font-size:18px; } }
@@ -365,3 +365,13 @@ textarea {
     .share-buttons { display:grid; grid-template-columns:1fr 1fr; }
     .share-button { justify-content:center; }
 }
+
+.avatar-stack i:nth-child(2) { font-size:0; background:#8a9b78 url('/imagens/logotrasparente.png') center/18px 18px no-repeat; }
+.auth-showcase-note span:first-child { width:22px; height:22px; overflow:hidden; font-size:0; background:url('/imagens/logotrasparente.png') center/contain no-repeat; }
+.empty-state > span { display:inline-grid; place-items:center; min-width:38px; min-height:38px; font-size:0; background:url('/imagens/logotrasparente.png') center/contain no-repeat; }
+.aside-note > span { display:block; width:28px; height:28px; flex:none; overflow:hidden; font-size:0; background:url('/imagens/logotrasparente.png') center/contain no-repeat; }
+
+/* Identidade oficial: substitui os marcadores provisórios pelo símbolo da marca. */
+.brand-mark { display:grid; place-items:center; width:38px; height:38px; flex:none; border-radius:0; background:transparent; font-size:0; }
+.brand-mark img { display:block; width:100%; height:100%; object-fit:contain; }
+.admin-brand .brand-mark { width:40px; height:40px; }

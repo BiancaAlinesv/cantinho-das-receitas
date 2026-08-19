@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#FBF8F3">
     <meta name="description" content="{{ $description ?? trim($__env->yieldContent('description', 'Receitas afetivas, simples e deliciosas para todos os dias.')) }}">
     <meta name="robots" content="index,follow">
+    <link rel="icon" type="image/png" href="{{ asset('imagens/fiveicom.png') }}">
     <meta property="og:site_name" content="Cantinho das Receitas">
     <meta property="og:url" content="{{ $canonical ?? url()->current() }}">
     <meta property="og:title" content="{{ $title ?? trim($__env->yieldContent('title', 'Cantinho das Receitas')) }}">
@@ -27,7 +28,7 @@
     <header class="site-header">
         <div class="container header-inner">
             <a href="{{ route('inicio') }}" class="brand" aria-label="Cantinho das Receitas - início">
-                <span class="brand-mark">✦</span>
+                <span class="brand-mark"><img src="{{ asset('imagens/logotrasparente.png') }}" alt=""></span>
                 <span>Cantinho <i>das</i> Receitas</span>
             </a>
             <nav class="main-nav" aria-label="Navegação principal">
@@ -66,7 +67,7 @@
 
     <footer class="site-footer" id="rodape">
         <div class="container footer-inner">
-            <div><a href="{{ route('inicio') }}" class="brand"><span class="brand-mark">✦</span><span>Cantinho <i>das</i> Receitas</span></a><p>Comida gostosa, memória afetiva e um cantinho para chamar de seu.</p></div>
+            <div><a href="{{ route('inicio') }}" class="brand"><span class="brand-mark"><img src="{{ asset('imagens/logotrasparente.png') }}" alt=""></span><span>Cantinho <i>das</i> Receitas</span></a><p>Comida gostosa, memória afetiva e um cantinho para chamar de seu.</p></div>
             <div class="footer-signature"><span>Feito com carinho por</span><a href="https://biancanegretti.com.br/" target="_blank" rel="noopener noreferrer">Bianca Negretti <span aria-hidden="true">↗</span></a><small>© {{ date('Y') }} Cantinho das Receitas</small></div>
         </div>
     </footer>
