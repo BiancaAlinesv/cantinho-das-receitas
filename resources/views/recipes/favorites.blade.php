@@ -8,7 +8,7 @@
     @if($favoritos->isNotEmpty())
         <div class="recipe-grid">@foreach($favoritos as $receita)<x-recipe-card :recipe="$receita" />@endforeach</div>
     @else
-        <div class="empty-state"><span aria-hidden="true">♡</span><h2>Seu cantinho ainda está vazio</h2><p>Salve uma receita favorita para encontrá-la facilmente depois.</p><a class="button" href="{{ route('receitas.listar') }}">Explorar receitas</a></div>
+        <x-ui.empty-state icon="♡" title="Seu cantinho ainda está vazio" description="Salve uma receita favorita para encontrá-la facilmente depois."><x-ui.button as="a" :href="route('receitas.listar')">Explorar receitas</x-ui.button></x-ui.empty-state>
     @endif
 </section>
 @endsection

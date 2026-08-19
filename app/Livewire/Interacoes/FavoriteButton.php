@@ -10,6 +10,7 @@ class FavoriteButton extends Component
 {
     public Receita $receita;
     public bool $favorited = false;
+    public bool $compact = false;
 
     public function mount(Receita $receita): void
     {

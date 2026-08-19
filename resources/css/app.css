@@ -264,6 +264,14 @@ textarea {
 .recipe-card h3 a { display:-webkit-box; overflow:hidden; -webkit-box-orient:vertical; -webkit-line-clamp:2; min-height:2.6em; }
 .recipe-card h3 a:focus-visible { border-radius:3px; }
 .recipe-rating .rating-empty { color:var(--muted); font-size:10px; }
+.recipe-card { position:relative; }
+.recipe-save { z-index:2; border:0; cursor:pointer; }
+.recipe-save:disabled { cursor:wait; }
+.recipe-save.is-saved { color:var(--orange); background:#fffaf0; }
+.button-danger { background:#b54e37; }
+.button-danger:hover { background:#8f3827; }
+@media (max-width:800px) { .header-save-link { display:none; } .header-actions { gap:10px; } .account-toolbar { align-items:flex-start; flex-wrap:wrap; } .account-toolbar-actions { width:100%; justify-content:flex-end; } }
+@media (max-width:560px) { .account-toolbar-actions { flex-direction:column; align-items:stretch; } .account-toolbar-actions > * { justify-content:center; } .mobile-nav nav { right:-8px; } }
 
 /* Navegação compacta para telas menores, sem depender de JavaScript. */
 .mobile-nav { display:none; position:relative; }
