@@ -9,6 +9,7 @@ use App\Models\Avaliacao;
 use App\Models\Comentario;
 use App\Models\Compartilhamento;
 use App\Models\Receita;
+use App\Models\ReceitaFonte;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -20,6 +21,7 @@ use App\Livewire\Interacoes\ShareRecipe;
 use App\Livewire\Receitas\PortionCalculator;
 use App\Livewire\Receitas\CreateRecipe;
 use App\Livewire\Receitas\EditRecipe;
+use App\Livewire\Receitas\MyRecipes;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -56,6 +58,26 @@ class RecipePlatformTest extends TestCase
         $this->get(route('receitas.mostrar', $recipe))->assertOk()->assertSee($recipe->titulo);
     }
 
+    public function test_draft_recipe_is_not_publicly_accessible(): void
+    {
+        $user = User::factory()->create();
+        $category = Categoria::create(['nome' => 'Doces', 'slug' => 'doces']);
+        $recipe = Receita::create([
+            'user_id' => $user->id,
+            'categoria_id' => $category->id,
+            'titulo' => 'Rascunho privado',
+            'descricao' => 'Uma receita em rascunho que não deve aparecer publicamente.',
+            'tempo_preparo_min' => 10,
+            'tempo_cozimento_min' => 20,
+            'porcoes' => 4,
+            'custo' => 'baixo',
+            'dificuldade' => 'facil',
+            'status' => 'rascunho',
+        ]);
+
+        $this->get(route('receitas.mostrar', $recipe))->assertNotFound();
+    }
+
     public function test_non_admin_cannot_access_admin_panel(): void
     {
         $this->actingAs(User::factory()->create())->get('/admin')->assertForbidden();
@@ -76,6 +98,65 @@ class RecipePlatformTest extends TestCase
         $this->actingAs(User::factory()->create())->get('/minhas-receitas')->assertOk();
     }
 
+    public function test_recipe_catalog_applies_category_and_difficulty_filters(): void
+    {
+        $user = User::factory()->create();
+        $doces = Categoria::create(['nome' => 'Doces', 'slug' => 'doces']);
+        $salgados = Categoria::create(['nome' => 'Salgados', 'slug' => 'salgados']);
+
+        Receita::create([
+            'user_id' => $user->id, 'categoria_id' => $doces->id, 'titulo' => 'Bolo filtrado',
+            'descricao' => 'Uma receita doce suficientemente descritiva para o teste.', 'tempo_preparo_min' => 20,
+            'tempo_cozimento_min' => 10, 'porcoes' => 4, 'custo' => 'baixo', 'dificuldade' => 'facil',
+            'status' => 'publicada', 'published_at' => now(),
+        ]);
+        Receita::create([
+            'user_id' => $user->id, 'categoria_id' => $salgados->id, 'titulo' => 'Torta não filtrada',
+            'descricao' => 'Uma receita salgada suficientemente descritiva para o teste.', 'tempo_preparo_min' => 40,
+            'tempo_cozimento_min' => 20, 'porcoes' => 4, 'custo' => 'medio', 'dificuldade' => 'dificil',
+            'status' => 'publicada', 'published_at' => now(),
+        ]);
+
+        $this->get('/receitas?categoria=Doces&dificuldade=facil')
+            ->assertOk()
+            ->assertSee('Bolo filtrado')
+            ->assertDontSee('Torta não filtrada');
+    }
+
+    public function test_user_cannot_open_another_users_recipe_editor(): void
+    {
+        $owner = User::factory()->create();
+        $visitor = User::factory()->create();
+        $category = Categoria::create(['nome' => 'Doces', 'slug' => 'doces']);
+        $recipe = Receita::create([
+            'user_id' => $owner->id, 'categoria_id' => $category->id, 'titulo' => 'Receita privada',
+            'descricao' => 'Uma receita suficientemente descritiva para testar autorização.', 'tempo_preparo_min' => 10,
+            'tempo_cozimento_min' => 10, 'porcoes' => 2, 'custo' => 'baixo', 'dificuldade' => 'facil',
+            'status' => 'publicada', 'published_at' => now(),
+        ]);
+
+        $this->actingAs($visitor)->get(route('receitas.editar', $recipe))->assertForbidden();
+    }
+
+    public function test_user_cannot_delete_another_users_recipe(): void
+    {
+        $owner = User::factory()->create();
+        $visitor = User::factory()->create();
+        $category = Categoria::create(['nome' => 'Doces', 'slug' => 'doces']);
+        $recipe = Receita::create([
+            'user_id' => $owner->id, 'categoria_id' => $category->id, 'titulo' => 'Receita protegida',
+            'descricao' => 'Uma receita suficientemente descritiva para testar exclusão segura.', 'tempo_preparo_min' => 10,
+            'tempo_cozimento_min' => 10, 'porcoes' => 2, 'custo' => 'baixo', 'dificuldade' => 'facil', 'status' => 'rascunho',
+        ]);
+
+        $this->actingAs($visitor);
+        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        Livewire::test(MyRecipes::class)
+            ->call('excluir', $recipe->id);
+
+        $this->assertDatabaseHas('receitas', ['id' => $recipe->id]);
+    }
+
     public function test_authenticated_drafts_tab_is_available(): void
     {
         $this->actingAs(User::factory()->create())->get('/minhas-receitas?aba=rascunhos')->assertOk()->assertSee('Rascunhos');
@@ -84,6 +165,69 @@ class RecipePlatformTest extends TestCase
     public function test_authenticated_recipe_creation_screen_is_available(): void
     {
         $this->actingAs(User::factory()->create())->get('/receitas/criar')->assertOk()->assertSee('Salvar rascunho');
+    }
+
+    public function test_authenticated_user_can_open_save_recipe_screen(): void
+    {
+        $this->get('/receitas/guardar')->assertRedirect(route('login'));
+        $this->actingAs(User::factory()->create())->get('/receitas/guardar')->assertOk()->assertSee('Guardar receita');
+    }
+
+    public function test_user_can_open_favorites_collection(): void
+    {
+        $user = User::factory()->create();
+        $category = Categoria::create(['nome' => 'Doces', 'slug' => 'doces']);
+        $recipe = Receita::create(['user_id' => $user->id, 'categoria_id' => $category->id, 'titulo' => 'Favorita da Bianca', 'descricao' => 'Uma receita suficientemente descritiva para a coleção.', 'tempo_preparo_min' => 10, 'tempo_cozimento_min' => 10, 'porcoes' => 2, 'custo' => 'baixo', 'dificuldade' => 'facil', 'status' => 'publicada', 'published_at' => now()]);
+        Favorito::create(['user_id' => $user->id, 'receita_id' => $recipe->id]);
+
+        $this->actingAs($user)->get(route('favoritos'))->assertOk()->assertSee('Favorita da Bianca');
+    }
+
+    public function test_user_can_save_recipe_with_source_and_personal_notes(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+        $category = Categoria::create(['nome' => 'Doces', 'slug' => 'doces']);
+
+        $this->actingAs($user);
+        Livewire::test('receitas.save-recipe')
+            ->set('titulo', 'Receita guardada de teste')
+            ->set('descricao', 'Uma receita encontrada em outro lugar para guardar no meu cantinho.')
+            ->set('categoria_id', $category->id)
+            ->set('tipo_fonte', 'instagram')
+            ->set('nome_fonte', 'Caderno da família')
+            ->set('url_fonte', 'https://example.com/receita')
+            ->set('observacoes_pessoais', 'Da próxima vez, usar menos açúcar.')
+            ->set('ingredientes', [['nome' => 'Farinha', 'quantidade' => 200, 'unidade' => 'g', 'observacao' => 'peneirada']])
+            ->set('modo_preparo', 'Misture os ingredientes e asse até dourar.')
+            ->call('guardar');
+
+        $receita = Receita::where('titulo', 'Receita guardada de teste')->firstOrFail();
+        $this->assertDatabaseHas('receitas', ['id' => $receita->id, 'status' => 'rascunho', 'user_id' => $user->id]);
+        $this->assertDatabaseHas('receita_fontes', ['receita_id' => $receita->id, 'user_id' => $user->id, 'tipo' => 'instagram', 'url' => 'https://example.com/receita']);
+    }
+
+    public function test_user_can_update_saved_recipe_source_details(): void
+    {
+        $user = User::factory()->create();
+        $category = Categoria::create(['nome' => 'Doces', 'slug' => 'doces']);
+        $recipe = Receita::create([
+            'user_id' => $user->id, 'categoria_id' => $category->id, 'titulo' => 'Receita para atualizar',
+            'descricao' => 'Uma receita guardada suficientemente descritiva para o teste.', 'tempo_preparo_min' => 20,
+            'tempo_cozimento_min' => 10, 'porcoes' => 4, 'custo' => 'baixo', 'dificuldade' => 'facil', 'status' => 'rascunho',
+        ]);
+
+        $this->actingAs($user);
+        Livewire::test(EditRecipe::class, ['receita' => $recipe])
+            ->set('tipo_fonte', 'livro')
+            ->set('nome_fonte', 'Livro de receitas')
+            ->set('url_fonte', 'https://example.com/livro')
+            ->set('observacoes_pessoais', 'Testar com menos sal.')
+            ->set('ingredientes', [['chave' => 'teste', 'nome' => 'Farinha', 'quantidade' => 100, 'unidade' => 'g', 'observacao' => '']])
+            ->set('modo_preparo', 'Misture tudo e asse até dourar.')
+            ->call('salvar');
+
+        $this->assertDatabaseHas('receita_fontes', ['receita_id' => $recipe->id, 'tipo' => 'livro', 'url' => 'https://example.com/livro', 'observacoes' => 'Testar com menos sal.']);
     }
 
     public function test_user_can_add_ingredient_while_editing_recipe(): void

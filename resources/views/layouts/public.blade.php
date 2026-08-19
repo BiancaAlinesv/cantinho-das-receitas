@@ -6,6 +6,7 @@
     <meta name="description" content="{{ $description ?? trim($__env->yieldContent('description', 'Receitas afetivas, simples e deliciosas para todos os dias.')) }}">
     <meta name="robots" content="index,follow">
     <meta property="og:site_name" content="Cantinho das Receitas">
+    <meta property="og:url" content="{{ $canonical ?? url()->current() }}">
     <meta property="og:title" content="{{ $title ?? trim($__env->yieldContent('title', 'Cantinho das Receitas')) }}">
     <meta property="og:description" content="{{ $description ?? trim($__env->yieldContent('description', 'Receitas afetivas, simples e deliciosas para todos os dias.')) }}">
     <meta property="og:type" content="{{ $ogType ?? 'website' }}">
@@ -25,14 +26,25 @@
                 <span>Cantinho <i>das</i> Receitas</span>
             </a>
             <nav class="main-nav" aria-label="Navegação principal">
-                <a href="{{ route('inicio') }}" class="active">Início</a>
-                <a href="{{ route('receitas.listar') }}">Receitas</a>
-                <a href="#categorias">Categorias</a>
-                <a href="#sobre">Sobre nós</a>
+                <a href="{{ route('inicio') }}" class="{{ request()->routeIs('inicio') ? 'active' : '' }}" @if(request()->routeIs('inicio')) aria-current="page" @endif>Início</a>
+                <a href="{{ route('receitas.listar') }}" class="{{ request()->routeIs('receitas.*') ? 'active' : '' }}" @if(request()->routeIs('receitas.*')) aria-current="page" @endif>Receitas</a>
+                <a href="{{ route('inicio') }}#categorias">Categorias</a>
+                <a href="{{ route('inicio') }}#sobre">Sobre o Cantinho</a>
             </nav>
+            <details class="mobile-nav">
+                <summary aria-label="Abrir menu de navegação"><span aria-hidden="true">☰</span></summary>
+                <nav aria-label="Navegação mobile">
+                    <a href="{{ route('inicio') }}" class="{{ request()->routeIs('inicio') ? 'active' : '' }}" @if(request()->routeIs('inicio')) aria-current="page" @endif>Início</a>
+                    <a href="{{ route('receitas.listar') }}" class="{{ request()->routeIs('receitas.*') ? 'active' : '' }}" @if(request()->routeIs('receitas.*')) aria-current="page" @endif>Receitas</a>
+                    <a href="{{ route('inicio') }}#categorias">Categorias</a>
+                    <a href="{{ route('inicio') }}#sobre">Sobre o Cantinho</a>
+                </nav>
+            </details>
             <div class="header-actions">
-                <a href="{{ route('receitas.listar') }}" class="icon-button" aria-label="Buscar">⌕</a>
+                <a href="{{ route('receitas.listar') }}" class="icon-button {{ request()->routeIs('receitas.listar') ? 'active' : '' }}" aria-label="Buscar receitas">⌕</a>
                 @auth
+                    <a href="{{ route('favoritos') }}" class="header-save-link">Favoritos</a>
+                    <a href="{{ route('receitas.guardar') }}" class="header-save-link">Guardar</a>
                     <a href="{{ route('minhas-receitas') }}" class="button button-small">Minha conta</a>
                 @else
                     <a href="{{ route('login') }}" class="button button-small button-outline">Entrar</a>
@@ -43,10 +55,10 @@
 
     <main>{{ $slot ?? '' }}@yield('content')</main>
 
-    <footer class="site-footer" id="sobre">
+    <footer class="site-footer" id="rodape">
         <div class="container footer-inner">
             <div><a href="{{ route('inicio') }}" class="brand"><span class="brand-mark">✦</span><span>Cantinho <i>das</i> Receitas</span></a><p>Comida gostosa, memória afetiva e um cantinho para chamar de seu.</p></div>
-            <p class="footer-copy">© {{ date('Y') }} Cantinho das Receitas</p>
+            <div class="footer-signature"><span>Feito com carinho por</span><a href="https://biancanegretti.com.br/" target="_blank" rel="noopener noreferrer">Bianca Negretti <span aria-hidden="true">↗</span></a><small>© {{ date('Y') }} Cantinho das Receitas</small></div>
         </div>
     </footer>
     @livewireScripts

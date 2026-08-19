@@ -50,6 +50,7 @@ class Receita extends Model
     public function passos(): HasMany { return $this->hasMany(ModoPreparoPasso::class)->orderBy('ordem'); }
     public function avaliacoes(): HasMany { return $this->hasMany(Avaliacao::class); }
     public function comentarios(): HasMany { return $this->hasMany(Comentario::class); }
+    public function fonte(): \Illuminate\Database\Eloquent\Relations\HasOne { return $this->hasOne(ReceitaFonte::class); }
     public function tempoTotalMin(): int { return $this->tempo_preparo_min + (int) $this->tempo_cozimento_min; }
 
     public function getFotoUrlAttribute(): ?string

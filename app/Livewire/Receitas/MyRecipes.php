@@ -14,11 +14,15 @@ class MyRecipes extends Component
         $this->aba = request()->query('aba') === 'rascunhos' ? 'rascunhos' : 'publicadas';
     }
 
-    public function receitas()
+    /**
+     * A consulta fica centralizada como propriedade computada para evitar
+     * repetir a regra de dono em cada trecho da view.
+     */
+    public function getReceitasProperty()
     {
         return Receita::where('user_id', auth()->id())
             ->where('status', $this->aba === 'publicadas' ? 'publicada' : 'rascunho')
-            ->with('categoria')
+            ->with(['categoria', 'fonte'])
             ->latest()
             ->get();
     }
