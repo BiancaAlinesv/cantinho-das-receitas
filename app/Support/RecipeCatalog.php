@@ -37,10 +37,10 @@ final class RecipeCatalog
             if (trim($term) !== '') {
                 $like = '%'.trim($term).'%';
                 $query->where(fn ($inner) => $inner
-                    ->where('titulo', 'like', $like)
-                    ->orWhere('descricao', 'like', $like)
-                    ->orWhereHas('categoria', fn ($category) => $category->where('nome', 'like', $like))
-                    ->orWhereHas('ingredientes.ingrediente', fn ($ingredient) => $ingredient->where('nome', 'like', $like))
+                    ->whereRaw('LOWER(titulo) LIKE LOWER(?)', [$like])
+                    ->orWhereRaw('LOWER(descricao) LIKE LOWER(?)', [$like])
+                    ->orWhereHas('categoria', fn ($category) => $category->whereRaw('LOWER(nome) LIKE LOWER(?)', [$like]))
+                    ->orWhereHas('ingredientes.ingrediente', fn ($ingredient) => $ingredient->whereRaw('LOWER(nome) LIKE LOWER(?)', [$like]))
                 );
             }
             if (filled($filters['categoria'] ?? null)) {

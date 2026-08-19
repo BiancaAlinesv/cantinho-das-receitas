@@ -258,7 +258,7 @@ textarea {
 .dashboard-recent .user-recipe-row { color:inherit; }
 .account-toolbar-actions { display:flex; align-items:center; flex-wrap:wrap; justify-content:flex-end; gap:10px; }
 .header-save-link { color:var(--orange); font-size:12px; font-weight:600; white-space:nowrap; }
-.header-save-link:hover { color:var(--terracotta); }
+.header-save-link:hover, .header-save-link.active { color:var(--terracotta); }
 @media (max-width:560px) { .dashboard-summary { grid-template-columns:1fr; } .dashboard-summary > div { justify-content:center; } .dashboard-recent { margin-top:42px; } }
 
 .recipe-card h3 a { display:-webkit-box; overflow:hidden; -webkit-box-orient:vertical; -webkit-line-clamp:2; min-height:2.6em; }

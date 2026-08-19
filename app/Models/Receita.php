@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -50,7 +51,7 @@ class Receita extends Model
     public function passos(): HasMany { return $this->hasMany(ModoPreparoPasso::class)->orderBy('ordem'); }
     public function avaliacoes(): HasMany { return $this->hasMany(Avaliacao::class); }
     public function comentarios(): HasMany { return $this->hasMany(Comentario::class); }
-    public function fonte(): \Illuminate\Database\Eloquent\Relations\HasOne { return $this->hasOne(ReceitaFonte::class); }
+    public function fonte(): HasOne { return $this->hasOne(ReceitaFonte::class); }
     public function tempoTotalMin(): int { return $this->tempo_preparo_min + (int) $this->tempo_cozimento_min; }
 
     public function getFotoUrlAttribute(): ?string

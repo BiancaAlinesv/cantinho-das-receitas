@@ -82,7 +82,7 @@ class EditRecipe extends Component
             'ingredientes' => ['required', 'array', 'min:1'], 'ingredientes.*.nome' => ['required', 'string', 'max:255'], 'ingredientes.*.quantidade' => ['nullable', 'numeric', 'min:0'], 'ingredientes.*.unidade' => ['required', 'in:g,kg,ml,l,xicara,colher_sopa,colher_cha,unidade,a_gosto'], 'ingredientes.*.observacao' => ['nullable', 'string', 'max:255'],
             'modo_preparo' => ['required', 'string', 'min:20'],
             'tipo_fonte' => ['required', 'in:instagram,tiktok,youtube,site,livro,familia,minha_receita,outro'],
-            'nome_fonte' => ['nullable', 'string', 'max:255'], 'url_fonte' => ['nullable', 'url', 'max:2048'],
+            'nome_fonte' => ['nullable', 'string', 'max:255'], 'url_fonte' => ['nullable', 'url:http,https', 'max:2048'],
             'observacoes_pessoais' => ['nullable', 'string', 'max:5000'],
         ]);
 

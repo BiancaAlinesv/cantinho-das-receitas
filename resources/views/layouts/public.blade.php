@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FBF8F3">
     <meta name="description" content="{{ $description ?? trim($__env->yieldContent('description', 'Receitas afetivas, simples e deliciosas para todos os dias.')) }}">
     <meta name="robots" content="index,follow">
     <meta property="og:site_name" content="Cantinho das Receitas">
@@ -10,8 +11,12 @@
     <meta property="og:title" content="{{ $title ?? trim($__env->yieldContent('title', 'Cantinho das Receitas')) }}">
     <meta property="og:description" content="{{ $description ?? trim($__env->yieldContent('description', 'Receitas afetivas, simples e deliciosas para todos os dias.')) }}">
     <meta property="og:type" content="{{ $ogType ?? 'website' }}">
+    <meta property="og:locale" content="pt_BR">
     @if(!empty($image))<meta property="og:image" content="{{ $image }}">@endif
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $title ?? trim($__env->yieldContent('title', 'Cantinho das Receitas')) }}">
+    <meta name="twitter:description" content="{{ $description ?? trim($__env->yieldContent('description', 'Receitas afetivas, simples e deliciosas para todos os dias.')) }}">
+    @if(!empty($image))<meta name="twitter:image" content="{{ $image }}">@endif
     <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
     <title>{{ $title ?? trim($__env->yieldContent('title', 'Cantinho das Receitas')) }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -38,13 +43,17 @@
                     <a href="{{ route('receitas.listar') }}" class="{{ request()->routeIs('receitas.*') ? 'active' : '' }}" @if(request()->routeIs('receitas.*')) aria-current="page" @endif>Receitas</a>
                     <a href="{{ route('inicio') }}#categorias">Categorias</a>
                     <a href="{{ route('inicio') }}#sobre">Sobre o Cantinho</a>
+                    @auth
+                        <a href="{{ route('favoritos') }}" class="{{ request()->routeIs('favoritos') ? 'active' : '' }}" @if(request()->routeIs('favoritos')) aria-current="page" @endif>Favoritos</a>
+                        <a href="{{ route('receitas.guardar') }}" class="{{ request()->routeIs('receitas.guardar') ? 'active' : '' }}" @if(request()->routeIs('receitas.guardar')) aria-current="page" @endif>Guardar receita</a>
+                    @endauth
                 </nav>
             </details>
             <div class="header-actions">
                 <a href="{{ route('receitas.listar') }}" class="icon-button {{ request()->routeIs('receitas.listar') ? 'active' : '' }}" aria-label="Buscar receitas">⌕</a>
                 @auth
-                    <a href="{{ route('favoritos') }}" class="header-save-link">Favoritos</a>
-                    <a href="{{ route('receitas.guardar') }}" class="header-save-link">Guardar</a>
+                    <a href="{{ route('favoritos') }}" class="header-save-link {{ request()->routeIs('favoritos') ? 'active' : '' }}" @if(request()->routeIs('favoritos')) aria-current="page" @endif>Favoritos</a>
+                    <a href="{{ route('receitas.guardar') }}" class="header-save-link {{ request()->routeIs('receitas.guardar') ? 'active' : '' }}" @if(request()->routeIs('receitas.guardar')) aria-current="page" @endif>Guardar</a>
                     <a href="{{ route('minhas-receitas') }}" class="button button-small">Minha conta</a>
                 @else
                     <a href="{{ route('login') }}" class="button button-small button-outline">Entrar</a>

@@ -49,7 +49,7 @@ new class extends Component
         $dados = $this->validate([
             'titulo' => ['required', 'string', 'max:255'], 'descricao' => ['required', 'string', 'min:20'],
             'categoria_id' => ['required', 'exists:categorias,id'], 'tipo_fonte' => ['required', 'in:instagram,tiktok,youtube,site,livro,familia,minha_receita,outro'],
-            'nome_fonte' => ['nullable', 'string', 'max:255'], 'url_fonte' => ['nullable', 'url', 'max:2048'],
+            'nome_fonte' => ['nullable', 'string', 'max:255'], 'url_fonte' => ['nullable', 'url:http,https', 'max:2048'],
             'observacoes_pessoais' => ['nullable', 'string', 'max:5000'], 'tempo_preparo_min' => ['required', 'integer', 'min:1', 'max:1440'],
             'tempo_cozimento_min' => ['required', 'integer', 'min:0', 'max:1440'], 'porcoes' => ['required', 'integer', 'min:1', 'max:100'],
             'custo' => ['required', 'in:baixo,medio,alto'], 'dificuldade' => ['required', 'in:facil,medio,dificil'],

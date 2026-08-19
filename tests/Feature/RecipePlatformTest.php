@@ -10,6 +10,8 @@ use App\Models\Comentario;
 use App\Models\Compartilhamento;
 use App\Models\Receita;
 use App\Models\ReceitaFonte;
+use App\Models\Ingrediente;
+use App\Models\ReceitaIngrediente;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -32,7 +34,7 @@ class RecipePlatformTest extends TestCase
 
     public function test_public_recipe_pages_and_sitemap_are_available(): void
     {
-        $this->get('/')->assertOk()->assertSee('Cantinho das Receitas');
+        $this->get('/')->assertOk()->assertSee('Cantinho das Receitas')->assertSee('og:locale');
         $this->get('/receitas')->assertOk()->assertSee('Todas as receitas');
         $this->get('/sitemap.xml')->assertOk()->assertHeader('Content-Type', 'application/xml');
     }
@@ -117,10 +119,21 @@ class RecipePlatformTest extends TestCase
             'status' => 'publicada', 'published_at' => now(),
         ]);
 
-        $this->get('/receitas?categoria=Doces&dificuldade=facil')
+        $this->get('/receitas?busca=bolo&categoria=Doces&dificuldade=facil')
             ->assertOk()
             ->assertSee('Bolo filtrado')
             ->assertDontSee('Torta não filtrada');
+    }
+
+    public function test_recipe_catalog_searches_by_related_ingredient(): void
+    {
+        $user = User::factory()->create();
+        $category = Categoria::create(['nome' => 'Doces', 'slug' => 'doces']);
+        $recipe = Receita::create(['user_id' => $user->id, 'categoria_id' => $category->id, 'titulo' => 'Bolo de festa', 'descricao' => 'Uma receita suficientemente descritiva para buscar ingrediente.', 'tempo_preparo_min' => 20, 'tempo_cozimento_min' => 30, 'porcoes' => 8, 'custo' => 'medio', 'dificuldade' => 'facil', 'status' => 'publicada', 'published_at' => now()]);
+        $ingredient = Ingrediente::create(['nome' => 'Canela']);
+        ReceitaIngrediente::create(['receita_id' => $recipe->id, 'ingrediente_id' => $ingredient->id, 'quantidade' => 1, 'unidade' => 'colher_cha', 'ordem' => 0]);
+
+        $this->get('/receitas?busca=canela')->assertOk()->assertSee('Bolo de festa');
     }
 
     public function test_user_cannot_open_another_users_recipe_editor(): void
@@ -183,6 +196,11 @@ class RecipePlatformTest extends TestCase
         $this->actingAs($user)->get(route('favoritos'))->assertOk()->assertSee('Favorita da Bianca');
     }
 
+    public function test_guest_cannot_open_favorites_collection(): void
+    {
+        $this->get(route('favoritos'))->assertRedirect(route('login'));
+    }
+
     public function test_user_can_save_recipe_with_source_and_personal_notes(): void
     {
         Storage::fake('public');
@@ -228,6 +246,23 @@ class RecipePlatformTest extends TestCase
             ->call('salvar');
 
         $this->assertDatabaseHas('receita_fontes', ['receita_id' => $recipe->id, 'tipo' => 'livro', 'url' => 'https://example.com/livro', 'observacoes' => 'Testar com menos sal.']);
+    }
+
+    public function test_saved_recipe_rejects_insecure_source_url(): void
+    {
+        $user = User::factory()->create();
+        $category = Categoria::create(['nome' => 'Doces', 'slug' => 'doces']);
+
+        $this->actingAs($user);
+        Livewire::test('receitas.save-recipe')
+            ->set('titulo', 'Receita com link inválido')
+            ->set('descricao', 'Uma receita suficientemente descritiva para validar o link.')
+            ->set('categoria_id', $category->id)
+            ->set('url_fonte', 'javascript:alert(1)')
+            ->set('ingredientes', [['nome' => 'Farinha', 'quantidade' => 100, 'unidade' => 'g', 'observacao' => '']])
+            ->set('modo_preparo', 'Misture tudo e asse até dourar.')
+            ->call('guardar')
+            ->assertHasErrors(['url_fonte']);
     }
 
     public function test_user_can_add_ingredient_while_editing_recipe(): void
